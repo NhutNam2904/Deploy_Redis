@@ -10,4 +10,6 @@ spec:
   nfs:
     path: /path/to/your/exported/dir
     server: nfs-server.example.com
-
+  claimRef:
+    namespace: redis
+    name: pvc-redis-master
