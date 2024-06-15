@@ -1,17 +1,4 @@
-# Copyright Broadcom, Inc. All Rights Reserved.
-# SPDX-License-Identifier: APACHE-2.0
 
-## @section Global parameters
-## Global Docker image parameters
-## Please, note that this will override the image parameters, including dependencies, configured to use the global value
-## Current available global Docker image parameters: imageRegistry, imagePullSecrets and storageClass
-##
-
-## @param global.imageRegistry Global Docker image registry
-## @param global.imagePullSecrets Global Docker registry secret names as an array
-## @param global.storageClass Global StorageClass for Persistent Volume(s)
-## @param global.redis.password Global Redis&reg; password (overrides `auth.password`)
-##
 global:
   imageRegistry: ""
   ## E.g.
@@ -31,6 +18,7 @@ global:
       ## @param global.compatibility.openshift.adaptSecurityContext Adapt the securityContext sections of the deployment to make them compatible with Openshift restricted-v2 SCC: remove runAsUser, runAsGroup and fsGroup and let the platform use their allowed default IDs. Possible values: auto (apply if the detected running cluster is Openshift), force (perform the adaptation always), disabled (do not perform adaptation)
       ##
       adaptSecurityContext: auto
+  
 ## @section Common parameters
 ##
 
@@ -135,8 +123,6 @@ master:
   preExecCmds: []
   extraFlags: []
   extraEnvVars: []
-  ## @param master.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for Redis&reg; master nodes
-  ##
   extraEnvVarsCM: ""
   ## @param master.extraEnvVarsSecret Name of existing Secret containing extra env vars for Redis&reg; master nodes
   ##
@@ -159,13 +145,6 @@ master:
     timeoutSeconds: 5
     successThreshold: 1
     failureThreshold: 5
-  ## @param master.readinessProbe.enabled Enable readinessProbe on Redis&reg; master nodes
-  ## @param master.readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
-  ## @param master.readinessProbe.periodSeconds Period seconds for readinessProbe
-  ## @param master.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-  ## @param master.readinessProbe.failureThreshold Failure threshold for readinessProbe
-  ## @param master.readinessProbe.successThreshold Success threshold for readinessProbe
-  ##
   readinessProbe:
     enabled: true
     initialDelaySeconds: 20
@@ -377,12 +356,7 @@ master:
     medium: ""
     sizeLimit: ""
     path: /data
-    ## @param master.persistence.subPath The subdirectory of the volume to mount on Redis&reg; master containers
-    ## NOTE: Useful in dev environments
-    ##
     subPath: ""
-    ## @param master.persistence.subPathExpr Used to construct the subPath subdirectory of the volume to mount on Redis&reg; master containers
-    ##
     subPathExpr: ""
     ## @param master.persistence.storageClass Persistent Volume storage class
     ## If defined, storageClassName: <storageClass>
@@ -396,7 +370,7 @@ master:
       - ReadWriteOnce
     ## @param master.persistence.size Persistent Volume size
     ##
-    size: 8Gi
+    size: 100Gi
     ## @param master.persistence.annotations Additional custom annotations for the PVC
     ##
     annotations: {}
@@ -405,7 +379,7 @@ master:
     labels: {}
     selector: {}
     dataSource: {}
-    existingClaim: "pvc-redis" 
+    existingClaim: "pvc-redis-master" 
   persistentVolumeClaimRetentionPolicy:
     enabled: false
     whenScaled: Retain
@@ -831,7 +805,7 @@ replica:
       - ReadWriteOnce
     ## @param replica.persistence.size Persistent Volume size
     ##
-    size: 8Gi
+    size: 100Gi
     ## @param replica.persistence.annotations Additional custom annotations for the PVC
     ##
     annotations: {}
@@ -851,7 +825,7 @@ replica:
     ## @param replica.persistence.existingClaim Use a existing PVC which must be created manually before bound
     ## NOTE: requires replica.persistence.enabled: true
     ##
-    existingClaim: ""
+    existingClaim: "pvc-redis-replica"
   ## persistentVolumeClaimRetentionPolicy
   ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#persistentvolumeclaim-retention
   ## @param replica.persistentVolumeClaimRetentionPolicy.enabled Controls if and how PVCs are deleted during the lifecycle of a StatefulSet
